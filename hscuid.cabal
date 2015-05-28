@@ -18,7 +18,8 @@ cabal-version:       >=1.8
 library
   hs-source-dirs:      lib
   exposed-modules:     Web.Cuid
-  build-depends:       base ==4.7.*,
+  build-depends:       base ==4.*,
+                       formatting ==6.*,
                        text ==1.*
   ghc-options:         -Wall -Werror
 
@@ -26,6 +27,6 @@ test-suite hcuid-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Test.hs
-  build-depends:       base ==4.7.*,
+  build-depends:       base ==4.*,
                        hscuid
   ghc-options:         -Wall -Werror
