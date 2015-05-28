@@ -14,24 +14,9 @@ import System.IO.Unsafe (unsafePerformIO)
 import System.Random (randomRIO)
 
 #if defined(mingw32_HOST_OS)
-
 import System.Win32 (ProcessId, failIfZero)
-
-foreign import stdcall unsafe "windows.h GetCurrentProcessId"
-    c_GetCurrentProcessId :: IO ProcessId
-
-getCurrentProcessId :: IO ProcessId
-getCurrentProcessId = failIfZero "GetCurrentProcessId" $ c_GetCurrentProcessId
-
-getPid :: IO Int
-getPid = fmap fromIntegral getCurrentProcessId
-
 #else
-
 import System.Posix.Process (getProcessID)
-getPid :: IO Int
-getPid = fmap fromIntegral getProcessID
-
 #endif
 
 newCuid :: IO Text
@@ -62,3 +47,21 @@ number, numberPadded :: Format Text (Int -> Text)
 (number, numberPadded) = (toBase, toBlockSize %. toBase) where
     toBlockSize = left blockSize '0'
     toBase = base formatBase
+
+getPid :: IO Int
+
+#if defined(mingw32_HOST_OS)
+
+foreign import stdcall unsafe "windows.h GetCurrentProcessId"
+    c_GetCurrentProcessId :: IO ProcessId
+
+getCurrentProcessId :: IO ProcessId
+getCurrentProcessId = failIfZero "GetCurrentProcessId" $ c_GetCurrentProcessId
+
+getPid = fmap fromIntegral getCurrentProcessId
+
+#else
+
+getPid = fmap fromIntegral getProcessID
+
+#endif
