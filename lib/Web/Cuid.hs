@@ -6,15 +6,17 @@ import Data.Monoid (mconcat)
 import Data.IORef (IORef, newIORef, atomicModifyIORef')
 import Data.String (fromString)
 import Data.Text.Lazy (Text)
+import Data.Time.Clock.POSIX (getPOSIXTime)
 import System.IO.Unsafe (unsafePerformIO)
 
-import Formatting (base, format, left, (%.))
+import Formatting (Format, base, format, left, (%.))
 
 newCuid :: IO Text
-newCuid = concatIO [prefix, globalCount] where
+newCuid = concatIO [prefix, timestamp, globalCount] where
     concatIO actions = fmap mconcat (sequence actions)
     prefix = return $ fromString "c"
-    globalCount = fmap formatNumber (next counter)
+    timestamp = fmap (format number . round) getPOSIXTime
+    globalCount = fmap (format numberPadded) (next counter)
 
 type Counter = IORef Int
 
@@ -30,7 +32,7 @@ formatBase, blockSize :: Int
 formatBase = 36
 blockSize = 4
 
-formatNumber :: Int -> Text
-formatNumber = format (toBlockSize %. toBase) where
+number, numberPadded :: Format Text (Int -> Text)
+(number, numberPadded) = (toBase, toBlockSize %. toBase) where
     toBlockSize = left blockSize '0'
     toBase = base formatBase
