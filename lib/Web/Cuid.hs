@@ -7,10 +7,9 @@ import Data.IORef (IORef, newIORef, atomicModifyIORef')
 import Data.String (fromString)
 import Data.Text.Lazy (Text)
 import Data.Time.Clock.POSIX (getPOSIXTime)
+import Formatting (Format, base, format, left, (%.))
 import System.IO.Unsafe (unsafePerformIO)
 import System.Random (randomRIO)
-
-import Formatting (Format, base, format, left, (%.))
 
 newCuid :: IO Text
 newCuid = concatIO [prefix, timestamp, globalCount, random, random] where
