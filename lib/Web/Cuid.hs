@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP, ForeignFunctionInterface #-}
+
 module Web.Cuid (
     newCuid
 ) where
@@ -11,12 +13,34 @@ import Formatting (Format, base, format, left, (%.))
 import System.IO.Unsafe (unsafePerformIO)
 import System.Random (randomRIO)
 
+#if defined(mingw32_HOST_OS)
+
+import System.Win32 (ProcessId, failIfZero)
+
+foreign import stdcall unsafe "windows.h GetCurrentProcessId"
+    c_GetCurrentProcessId :: IO ProcessId
+
+getCurrentProcessId :: IO ProcessId
+getCurrentProcessId = failIfZero "GetCurrentProcessId" $ c_GetCurrentProcessId
+
+getPid :: IO Int
+getPid = fmap fromIntegral getCurrentProcessId
+
+#else
+
+import System.Posix.Process (getProcessID)
+getPid :: IO Int
+getPid = fmap fromIntegral getProcessID
+
+#endif
+
 newCuid :: IO Text
-newCuid = concatIO [prefix, timestamp, globalCount, random, random] where
+newCuid = concatIO [prefix, timestamp, globalCount, fingerprint, random, random] where
     concatIO actions = fmap mconcat (sequence actions)
     prefix = return $ fromString "c"
     timestamp = fmap (format number . millis) getPOSIXTime
     globalCount = fmap (format numberPadded) (next counter)
+    fingerprint = fmap (format numberPadded) getPid
     random = fmap (format numberPadded) (randomRIO (0, maxValue))
     millis posix = round $ posix * 1000
 

@@ -23,6 +23,11 @@ library
                        time ==1.*,
                        random ==1.*,
                        text ==1.*
+  if os(windows)
+    build-depends:     Win32 ==2.*
+    extra-libraries:   kernel32
+  else
+    build-depends:     unix ==2.*
   ghc-options:         -Wall -Werror
 
 test-suite hcuid-test
