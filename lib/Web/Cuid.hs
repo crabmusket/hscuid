@@ -35,11 +35,11 @@ getPid = fmap fromIntegral getProcessID
 #endif
 
 newCuid :: IO Text
-newCuid = concatIO [prefix, timestamp, globalCount, fingerprint, random, random] where
-    concatIO actions = fmap mconcat (sequence actions)
-    prefix = return $ fromString "c"
-    timestamp = fmap (format number . millis) getPOSIXTime
-    globalCount = fmap (format numberPadded) (next counter)
+newCuid = concatM [c, time, count, fingerprint, random, random] where
+    concatM actions = fmap mconcat (sequence actions)
+    c = return $ fromString "c"
+    time = fmap (format number . millis) getPOSIXTime
+    count = fmap (format numberPadded) (next counter)
     fingerprint = fmap (format numberPadded) getPid
     random = fmap (format numberPadded) (randomRIO (0, maxValue))
     millis posix = round $ posix * 1000
