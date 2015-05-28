@@ -21,6 +21,7 @@ library
   build-depends:       base ==4.*,
                        formatting ==6.*,
                        time ==1.*,
+                       random ==1.*,
                        text ==1.*
   ghc-options:         -Wall -Werror
 
