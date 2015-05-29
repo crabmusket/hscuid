@@ -28,7 +28,7 @@ newCuid = concatM [c, time, count, fingerprint, random, random] where
     -- to determine the time a particular CUID was created.
     time = fmap (format number . millis) getPOSIXTime
     -- To avoid collisions on the same machine, add a global counter to each ID.
-    count = fmap (format numberPadded) (next counter)
+    count = fmap (format numberPadded) (postIncrement counter)
     -- To avoid collosions between separate machines, generate a 'fingerprint'
     -- from details which are hopefully unique to this machine - PID and hostname.
     fingerprint = fmap (format numberPadded) getPid
@@ -40,25 +40,30 @@ newCuid = concatM [c, time, count, fingerprint, random, random] where
     -- POSIX time library gives the result in fractional seconds.
     millis posix = round $ posix * 1000
 
-type Counter = IORef Int
-
-counter :: Counter
+-- | CUID calls for a globally incrementing counter per machine. This is ugly,
+-- but it satisfies the requirement.
+counter :: IORef Int
 counter = unsafePerformIO (newIORef 0)
 
-next :: Counter -> IO Int
-next c = atomicModifyIORef' c incrementAndWrap where
+-- | Increment the counter, and return the value before it was incremented.
+postIncrement :: IORef Int -> IO Int
+postIncrement c = atomicModifyIORef' c incrementAndWrap where
     incrementAndWrap count = (succ count `mod` maxValue, count)
 
+-- These constants are to do with number formatting.
 formatBase, blockSize, maxValue :: Int
 formatBase = 36
 blockSize = 4
 maxValue = formatBase ^ blockSize
 
+-- Number formatters for converting to the correct base and padding.
 number, numberPadded :: Format Text (Int -> Text)
 (number, numberPadded) = (toBase, toBlockSize %. toBase) where
     toBlockSize = left blockSize '0'
     toBase = base formatBase
 
+-- | Get the ID of the current process. This function has a platform-specific
+-- implementation. Fun times.
 getPid :: IO Int
 
 #if defined(mingw32_HOST_OS)
