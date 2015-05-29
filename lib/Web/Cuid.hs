@@ -27,7 +27,7 @@ import System.Posix.Process (getProcessID)
 newCuid :: MonadIO m => m Text
 newCuid = concatM [c, time, count, fingerprint, random, random] where
     -- The CUID starts with a letter so it's usable in HTML element IDs.
-    c = return $ fromString "c"
+    c = return (fromString "c")
 
     -- The second chunk is the timestamp. Note that this means it is possible
     -- to determine the time a particular CUID was created.
@@ -36,31 +36,34 @@ newCuid = concatM [c, time, count, fingerprint, random, random] where
     -- To avoid collisions on the same machine, add a global counter to each ID.
     count = liftM (format numberPadded) (postIncrement counter)
 
-    -- To avoid collosions between separate machines, generate a 'fingerprint'
+    -- To avoid collisions between separate machines, generate a 'fingerprint'
     -- from details which are hopefully unique to this machine - PID and hostname.
     fingerprint = do
         pid <- getPid
         hostname <- getHostName
         let hostSum = 36 + length hostname + sum (map ord hostname)
-            twoOfNum = format $ fitRight 2 %. number
+            twoOfNum = format (fitRight 2 %. number)
         return (twoOfNum pid <> twoOfNum hostSum)
 
-    -- And some randomness for good measure.
+    -- And some randomness for good measure. Note that System.Random is not a
+    -- source of crypto-strength randomness.
     random = liftM (format numberPadded) (randomRIO (0, maxValue))
 
     -- Evaluate IO actions and concatenate their results.
     concatM actions = liftM mconcat (liftIO $ sequence actions)
 
     -- POSIX time library gives the result in fractional seconds.
-    millis posix = round $ posix * 1000
+    millis posix = round (posix * 1000)
 
--- | CUID calls for a globally incrementing counter per machine. This is ugly,
+-- CUID calls for a globally incrementing counter per machine. This is ugly,
 -- but it satisfies the requirement.
 counter :: IORef Int
 counter = unsafePerformIO (newIORef 0)
+-- Don't want two different counters being created because of inlining.
+-- For more info: https://wiki.haskell.org/Top_level_mutable_state
 {-# NOINLINE counter #-}
 
--- | Increment the counter, and return the value before it was incremented.
+-- Increment the counter, and return the value before it was incremented.
 postIncrement :: MonadIO m => IORef Int -> m Int
 postIncrement c = liftIO (atomicModifyIORef' c incrementAndWrap) where
     incrementAndWrap count = (succ count `mod` maxValue, count)
@@ -77,7 +80,7 @@ number, numberPadded :: Format Text (Int -> Text)
     toBlockSize = left blockSize '0'
     toBase = base formatBase
 
--- | Get the ID of the current process. This function has a platform-specific
+-- Get the ID of the current process. This function has a platform-specific
 -- implementation. Fun times.
 getPid :: MonadIO m => m Int
 
@@ -87,7 +90,7 @@ foreign import stdcall unsafe "windows.h GetCurrentProcessId"
     c_GetCurrentProcessId :: IO ProcessId
 
 getCurrentProcessId :: IO ProcessId
-getCurrentProcessId = failIfZero "GetCurrentProcessId" $ c_GetCurrentProcessId
+getCurrentProcessId = failIfZero "GetCurrentProcessId" c_GetCurrentProcessId
 
 getPid = liftM fromIntegral (liftIO getCurrentProcessId)
 
