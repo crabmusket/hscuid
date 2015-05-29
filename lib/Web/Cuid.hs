@@ -4,6 +4,8 @@ module Web.Cuid (
     newCuid
 ) where
 
+import Control.Monad (liftM)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Monoid (mconcat)
 import Data.IORef (IORef, newIORef, atomicModifyIORef')
 import Data.String (fromString)
@@ -20,23 +22,23 @@ import System.Posix.Process (getProcessID)
 #endif
 
 -- | Generate a new random CUID.
-newCuid :: IO Text
+newCuid :: MonadIO m => m Text
 newCuid = concatM [c, time, count, fingerprint, random, random] where
     -- The CUID starts with a letter so it's usable in HTML element IDs.
     c = return $ fromString "c"
     -- The second chunk is the timestamp. Note that this means it is possible
     -- to determine the time a particular CUID was created.
-    time = fmap (format number . millis) getPOSIXTime
+    time = liftM (format number . millis) getPOSIXTime
     -- To avoid collisions on the same machine, add a global counter to each ID.
-    count = fmap (format numberPadded) (postIncrement counter)
+    count = liftM (format numberPadded) (postIncrement counter)
     -- To avoid collosions between separate machines, generate a 'fingerprint'
     -- from details which are hopefully unique to this machine - PID and hostname.
-    fingerprint = fmap (format numberPadded) getPid
+    fingerprint = liftM (format numberPadded) getPid
     -- And some randomness for good measure.
-    random = fmap (format numberPadded) (randomRIO (0, maxValue))
+    random = liftM (format numberPadded) (randomRIO (0, maxValue))
 
     -- Evaluate IO actions and concatenate their results.
-    concatM actions = fmap mconcat (sequence actions)
+    concatM actions = liftM mconcat (liftIO $ sequence actions)
     -- POSIX time library gives the result in fractional seconds.
     millis posix = round $ posix * 1000
 
@@ -46,8 +48,8 @@ counter :: IORef Int
 counter = unsafePerformIO (newIORef 0)
 
 -- | Increment the counter, and return the value before it was incremented.
-postIncrement :: IORef Int -> IO Int
-postIncrement c = atomicModifyIORef' c incrementAndWrap where
+postIncrement :: MonadIO m => IORef Int -> m Int
+postIncrement c = liftIO (atomicModifyIORef' c incrementAndWrap) where
     incrementAndWrap count = (succ count `mod` maxValue, count)
 
 -- These constants are to do with number formatting.
@@ -64,7 +66,7 @@ number, numberPadded :: Format Text (Int -> Text)
 
 -- | Get the ID of the current process. This function has a platform-specific
 -- implementation. Fun times.
-getPid :: IO Int
+getPid :: MonadIO m => m Int
 
 #if defined(mingw32_HOST_OS)
 
@@ -74,10 +76,10 @@ foreign import stdcall unsafe "windows.h GetCurrentProcessId"
 getCurrentProcessId :: IO ProcessId
 getCurrentProcessId = failIfZero "GetCurrentProcessId" $ c_GetCurrentProcessId
 
-getPid = fmap fromIntegral getCurrentProcessId
+getPid = liftM fromIntegral (liftIO getCurrentProcessId)
 
 #else
 
-getPid = fmap fromIntegral getProcessID
+getPid = liftM fromIntegral (liftIO getProcessID)
 
 #endif
