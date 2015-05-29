@@ -28,11 +28,14 @@ newCuid :: MonadIO m => m Text
 newCuid = concatM [c, time, count, fingerprint, random, random] where
     -- The CUID starts with a letter so it's usable in HTML element IDs.
     c = return $ fromString "c"
+
     -- The second chunk is the timestamp. Note that this means it is possible
     -- to determine the time a particular CUID was created.
     time = liftM (format number . millis) getPOSIXTime
+
     -- To avoid collisions on the same machine, add a global counter to each ID.
     count = liftM (format numberPadded) (postIncrement counter)
+
     -- To avoid collosions between separate machines, generate a 'fingerprint'
     -- from details which are hopefully unique to this machine - PID and hostname.
     fingerprint = liftM2 mappend pid host
@@ -41,11 +44,13 @@ newCuid = concatM [c, time, count, fingerprint, random, random] where
     getHostNameId = do
         hostname <- getHostName
         return $ 36 + length hostname + sum (map ord hostname)
+
     -- And some randomness for good measure.
     random = liftM (format numberPadded) (randomRIO (0, maxValue))
 
     -- Evaluate IO actions and concatenate their results.
     concatM actions = liftM mconcat (liftIO $ sequence actions)
+
     -- POSIX time library gives the result in fractional seconds.
     millis posix = round $ posix * 1000
 
