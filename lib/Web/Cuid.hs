@@ -53,6 +53,7 @@ newCuid = concatM [c, time, count, fingerprint, random, random] where
 -- but it satisfies the requirement.
 counter :: IORef Int
 counter = unsafePerformIO (newIORef 0)
+{-# NOINLINE counter #-}
 
 -- | Increment the counter, and return the value before it was incremented.
 postIncrement :: MonadIO m => IORef Int -> m Int
