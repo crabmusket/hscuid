@@ -4,10 +4,10 @@ module Web.Cuid (
     newCuid
 ) where
 
-import Control.Monad (liftM, liftM2)
+import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Char (ord)
-import Data.Monoid (mappend, mconcat)
+import Data.Monoid (mconcat, (<>))
 import Data.IORef (IORef, newIORef, atomicModifyIORef')
 import Data.String (fromString)
 import Data.Text.Lazy (Text)
@@ -38,12 +38,12 @@ newCuid = concatM [c, time, count, fingerprint, random, random] where
 
     -- To avoid collosions between separate machines, generate a 'fingerprint'
     -- from details which are hopefully unique to this machine - PID and hostname.
-    fingerprint = liftM2 mappend pid host
-    pid = liftM (format $ lastTwo %. number) getPid
-    host = liftM (format $ lastTwo %. number) getHostNameId
-    getHostNameId = do
+    fingerprint = do
+        pid <- getPid
         hostname <- getHostName
-        return $ 36 + length hostname + sum (map ord hostname)
+        let hostSum = 36 + length hostname + sum (map ord hostname)
+            twoOfNum = format $ fitRight 2 %. number
+        return (twoOfNum pid <> twoOfNum hostSum)
 
     -- And some randomness for good measure.
     random = liftM (format numberPadded) (randomRIO (0, maxValue))
