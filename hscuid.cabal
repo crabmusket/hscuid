@@ -32,10 +32,11 @@ library
     build-depends:     unix ==2.*
   ghc-options:         -Wall -Werror
 
-test-suite hcuid-test
+test-suite hscuid-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Test.hs
   build-depends:       base ==4.*,
+                       containers ==0.5.*,
                        hscuid
-  ghc-options:         -Wall -Werror
+  ghc-options:         -Wall -Werror -rtsopts -O2
