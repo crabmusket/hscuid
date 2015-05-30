@@ -10,9 +10,9 @@ import Data.Char (ord)
 import Data.Monoid (mconcat, (<>))
 import Data.IORef (IORef, newIORef, atomicModifyIORef')
 import Data.String (fromString)
-import Data.Text.Lazy (Text)
+import Data.Text (Text)
 import Data.Time.Clock.POSIX (getPOSIXTime)
-import Formatting (Format, base, fitRight, format, left, (%.))
+import Formatting (Format, base, fitRight, sformat, left, (%.))
 import Network.HostName (getHostName)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Random (randomRIO)
@@ -31,10 +31,10 @@ newCuid = concatM [c, time, count, fingerprint, random, random] where
 
     -- The second chunk is the timestamp. Note that this means it is possible
     -- to determine the time a particular CUID was created.
-    time = liftM (format number . millis) getPOSIXTime
+    time = liftM (sformat number . millis) getPOSIXTime
 
     -- To avoid collisions on the same machine, add a global counter to each ID.
-    count = liftM (format numberPadded) (postIncrement counter)
+    count = liftM (sformat numberPadded) (postIncrement counter)
 
     -- To avoid collisions between separate machines, generate a 'fingerprint'
     -- from details which are hopefully unique to this machine - PID and hostname.
@@ -42,12 +42,12 @@ newCuid = concatM [c, time, count, fingerprint, random, random] where
         pid <- getPid
         hostname <- getHostName
         let hostSum = 36 + length hostname + sum (map ord hostname)
-            twoOfNum = format (fitRight 2 %. number)
+            twoOfNum = sformat (fitRight 2 %. number)
         return (twoOfNum pid <> twoOfNum hostSum)
 
     -- And some randomness for good measure. Note that System.Random is not a
     -- source of crypto-strength randomness.
-    random = liftM (format numberPadded) (randomRIO (0, maxValue))
+    random = liftM (sformat numberPadded) (randomRIO (0, maxValue))
 
     -- Evaluate IO actions and concatenate their results.
     concatM actions = liftM mconcat (liftIO $ sequence actions)
