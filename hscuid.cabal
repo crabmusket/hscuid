@@ -31,7 +31,7 @@ library
     extra-libraries:   kernel32
   else
     build-depends:     unix ==2.*
-  ghc-options:         -Wall -Werror
+  ghc-options:         -Wall
 
 test-suite hscuid-test
   type:                exitcode-stdio-1.0
@@ -40,4 +40,4 @@ test-suite hscuid-test
   build-depends:       base ==4.*,
                        containers ==0.5.*,
                        hscuid
-  ghc-options:         -Wall -Werror -rtsopts -O2
+  ghc-options:         -Wall -rtsopts -O2
