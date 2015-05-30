@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP, ForeignFunctionInterface #-}
 
 module Web.Cuid (
-    newCuid
+    Cuid, newCuid
 ) where
 
 import Control.Monad (liftM)
@@ -23,8 +23,12 @@ import System.Win32 (ProcessId, failIfZero)
 import System.Posix.Process (getProcessID)
 #endif
 
+-- | Convenience type so that you don't have to import Text downstream. Note that
+-- this is strict Text.
+type Cuid = Text
+
 -- | Generate a new random CUID.
-newCuid :: MonadIO m => m Text
+newCuid :: MonadIO m => m Cuid
 newCuid = concatM [c, time, count, fingerprint, random, random] where
     -- The CUID starts with a letter so it's usable in HTML element IDs.
     c = return (fromString "c")
