@@ -4,7 +4,8 @@
 name:                hscuid
 version:             0.0.0
 synopsis:            Collision-resistant IDs
--- description:         
+description:         CUIDs are designed for horizontal scalability and collision
+                     resistance. Read more about them at <https://usecuid.org>.
 homepage:            https://github.com/eightyeight/hscuid
 license:             MIT
 license-file:        LICENSE

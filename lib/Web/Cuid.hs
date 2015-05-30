@@ -1,5 +1,16 @@
 {-# LANGUAGE CPP, ForeignFunctionInterface #-}
 
+{-|
+Stability: stable
+Portability: portable
+
+You can generate a new CUID inside any IO-enabled monad using this module's
+one exported function:
+
+>>> cuid <- newCuid
+>>> print cuid
+"ciaafthr00000qhpm0jp81gry"
+-}
 module Web.Cuid (
     Cuid, newCuid
 ) where
