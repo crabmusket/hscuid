@@ -1,7 +1,7 @@
 # hscuid
 
 A Haskell port of the [JavaScript library][cuid] for collision-resistant identifiers.
-To install, `cabal install hscuid`.
+To install, [`cabal install hscuid`][hscuid].
 
 ## What is a CUID?
 
@@ -20,4 +20,5 @@ main = print =<< newCuid
 ```
 
 [cuid]: https://github.com/ericelliott/cuid
+[hscuid]: http://hackage.haskell.org/package/hscuid
 [usecuid.org]: https://usecuid.org
