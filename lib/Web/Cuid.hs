@@ -10,6 +10,9 @@ one exported function:
 >>> cuid <- newCuid
 >>> print cuid
 "ciaafthr00000qhpm0jp81gry"
+
+This module does not use crypto-strength sources of randomless. Use at your own
+peril!
 -}
 module Web.Cuid (
     Cuid, newCuid
@@ -40,7 +43,7 @@ type Cuid = Text
 
 -- | Generate a new random CUID.
 newCuid :: MonadIO m => m Cuid
-newCuid = concatM [c, time, count, fingerprint, random, random] where
+newCuid = concatIO [c, time, count, fingerprint, random, random] where
     -- The CUID starts with a letter so it's usable in HTML element IDs.
     c = return (fromString "c")
 
@@ -57,15 +60,14 @@ newCuid = concatM [c, time, count, fingerprint, random, random] where
         pid <- getPid
         hostname <- getHostName
         let hostSum = 36 + length hostname + sum (map ord hostname)
-            twoOfNum = sformat (fitRight 2 %. number)
-        return (twoOfNum pid <> twoOfNum hostSum)
+        return (sformat twoOfNum pid <> sformat twoOfNum hostSum)
 
     -- And some randomness for good measure. Note that System.Random is not a
     -- source of crypto-strength randomness.
     random = liftM (sformat numberPadded) (randomRIO (0, maxValue))
 
     -- Evaluate IO actions and concatenate their results.
-    concatM actions = liftM mconcat (liftIO $ sequence actions)
+    concatIO actions = liftM mconcat (liftIO $ sequence actions)
 
     -- POSIX time library gives the result in fractional seconds.
     millis posix = round (posix * 1000)
@@ -90,10 +92,10 @@ blockSize = 4
 maxValue = formatBase ^ blockSize
 
 -- Number formatters for converting to the correct base and padding.
-number, numberPadded :: Format Text (Int -> Text)
-(number, numberPadded) = (toBase, toBlockSize %. toBase) where
-    toBlockSize = left blockSize '0'
-    toBase = base formatBase
+number, numberPadded, twoOfNum :: Format Text (Int -> Text)
+number = base formatBase
+numberPadded = left blockSize '0' %. number
+twoOfNum = fitRight 2 %. number
 
 -- Get the ID of the current process. This function has a platform-specific
 -- implementation. Fun times.
