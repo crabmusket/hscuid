@@ -64,7 +64,7 @@ newCuid = concatIO [c, time, count, fingerprint, random, random] where
 
     -- And some randomness for good measure. Note that System.Random is not a
     -- source of crypto-strength randomness.
-    random = liftM (sformat numberPadded) (randomRIO (0, maxValue))
+    random = liftM (sformat numberPadded) (randomRIO (0, maxCount))
 
     -- Evaluate IO actions and concatenate their results.
     concatIO actions = liftM mconcat (liftIO $ sequence actions)
@@ -83,13 +83,13 @@ counter = unsafePerformIO (newIORef 0)
 -- Increment the counter, and return the value before it was incremented.
 postIncrement :: MonadIO m => IORef Int -> m Int
 postIncrement c = liftIO (atomicModifyIORef' c incrementAndWrap) where
-    incrementAndWrap count = (succ count `mod` maxValue, count)
+    incrementAndWrap count = (succ count `mod` maxCount, count)
 
 -- These constants are to do with number formatting.
-formatBase, blockSize, maxValue :: Int
+formatBase, blockSize, maxCount :: Int
 formatBase = 36
 blockSize = 4
-maxValue = formatBase ^ blockSize
+maxCount = formatBase ^ blockSize
 
 -- Number formatters for converting to the correct base and padding.
 number, numberPadded, twoOfNum :: Format Text (Int -> Text)
