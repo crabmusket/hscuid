@@ -1,7 +1,7 @@
 module Main where
 
-import Data.Set (empty, insert, size)
 import Control.Monad (foldM)
+import Data.Set (empty, insert, size)
 import System.Exit (ExitCode(..), exitWith)
 
 import Web.Cuid (newCuid)
