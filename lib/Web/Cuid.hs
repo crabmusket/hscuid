@@ -11,7 +11,7 @@ one exported function:
 >>> print cuid
 "ciaafthr00000qhpm0jp81gry"
 
-This module does not use crypto-strength sources of randomless. Use at your own
+This module does not use crypto-strength sources of randomness. Use at your own
 peril!
 -}
 module Web.Cuid (
