@@ -1,4 +1,4 @@
-# hscuid
+# hscuid [![Build Status](https://travis-ci.org/eightyeight/hscuid.svg?branch=master)](https://travis-ci.org/eightyeight/hscuid)
 
 A Haskell port of the [JavaScript library][cuid] for collision-resistant identifiers.
 To install, [`cabal install hscuid`][hscuid].
