@@ -21,7 +21,6 @@ module Web.Cuid (
 import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Char (ord)
-import Data.Monoid (mconcat, (<>))
 import Data.IORef (IORef, newIORef, atomicModifyIORef')
 import Data.String (fromString)
 import Data.Text (Text)
@@ -30,6 +29,12 @@ import Formatting (Format, base, fitRight, sformat, left, (%.))
 import Network.HostName (getHostName)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Random (randomRIO)
+
+#if MIN_VERSION_base(4,8,0)
+import Data.Monoid ((<>))
+#else
+import Data.Monoid (mconcat, (<>))
+#endif
 
 #if defined(mingw32_HOST_OS)
 import System.Win32 (ProcessId, failIfZero)
