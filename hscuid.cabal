@@ -19,6 +19,7 @@ cabal-version:       >=1.8
 library
   hs-source-dirs:      lib
   exposed-modules:     Web.Cuid
+  other-modules:       Web.Cuid.Internal
   build-depends:       base ==4.*,
                        formatting ==6.*,
                        time ==1.*,
