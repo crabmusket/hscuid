@@ -11,13 +11,7 @@ You can read more about them at [usecuid.org][].
 
 ## How do I use this library?
 
-There is only one export, `newCuid`:
-
-```haskell
-import Web.Cuid (newCuid)
-
-main = print =<< newCuid
-```
+See documentation on [hackage][hscuid].
 
 [cuid]: https://github.com/ericelliott/cuid
 [hscuid]: http://hackage.haskell.org/package/hscuid
