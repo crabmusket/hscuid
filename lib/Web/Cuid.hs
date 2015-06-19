@@ -4,12 +4,18 @@
 Stability: stable
 Portability: portable
 
-You can generate a new CUID inside any IO-enabled monad using this module's
-one exported function:
+You can generate a new CUID inside any IO-enabled monad using @newCuid@:
 
 >>> cuid <- newCuid
 >>> print cuid
 "ciaafthr00000qhpm0jp81gry"
+
+There is also a function, @newSlug@, which generates shorter IDs without the c
+prefix of regular CUIDs:
+
+>>> slug <- newSlug
+>>> print slug
+"ym0001iw3f"
 
 This module does not use crypto-strength sources of randomness. Use at your own
 peril!
