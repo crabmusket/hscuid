@@ -47,7 +47,7 @@ type Cuid = Text
 
 -- | Generate a new random CUID.
 newCuid :: MonadIO m => m Cuid
-newCuid = concatIO [c, time, count, fingerprint, random, random] where
+newCuid = concatResults [c, time, count, fingerprint, random, random] where
     -- The CUID starts with a letter so it's usable in HTML element IDs.
     c = return (fromString "c")
 
@@ -74,7 +74,7 @@ type Slug = Text
 -- | A slug is a shorter piece of text generated using some of the same
 -- techniques as CUIDs.
 newSlug :: MonadIO m => m Slug
-newSlug = concatIO [time, count, fingerprint, random] where
+newSlug = concatResults [time, count, fingerprint, random] where
     time = liftM (sformat twoOfNum . millis) getPOSIXTime
     count = liftM (sformat numberPadded) (postIncrement counter)
     random = liftM (sformat twoOfNum) (randomRIO (0, maxCount))
@@ -91,8 +91,8 @@ getFingerprint = do
     return (pid, hostSum)
 
 -- Evaluate IO actions and concatenate their results.
-concatIO :: (MonadIO m, Monoid a) => [IO a] -> m a
-concatIO actions = liftM mconcat (liftIO $ sequence actions)
+concatResults :: (MonadIO m, Monoid a) => [IO a] -> m a
+concatResults actions = liftM mconcat (liftIO $ sequence actions)
 
 -- CUID calls for a globally incrementing counter per machine. This is ugly,
 -- but it satisfies the requirement.
