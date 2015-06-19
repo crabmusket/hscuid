@@ -1,28 +1,28 @@
 module Main where
 
-import Control.Monad (foldM)
+import Control.Monad (foldM, when)
 import Data.Set (empty, insert, size)
 import System.Exit (ExitCode(..), exitWith)
 
-import Web.Cuid (newCuid)
+import Web.Cuid (Cuid, newCuid, newSlug)
 
 main :: IO ()
 main = do
-    result <- runCollisionTest 1200000
-    case result of
-        Nothing -> exitWith ExitSuccess
-        Just n -> do
-            print ("Number of collisions: " ++ show n)
+    nCuid <- runCollisionTest newCuid 1200000
+    nSlug <- runCollisionTest newSlug 1200000
+    case (nCuid, nSlug) of
+        (0, 0) -> exitWith ExitSuccess
+        _otherwise -> do
+            when (nCuid /= 0) $ print ("cuid collisions: " ++ show nCuid)
+            when (nSlug /= 0) $ print ("slug collisions: " ++ show nSlug)
             exitWith (ExitFailure 1)
 
-runCollisionTest :: Int -> IO (Maybe Int)
-runCollisionTest numberOfCuids = do
+runCollisionTest :: IO Cuid -> Int -> IO Int
+runCollisionTest action numberOfCuids = do
     let accumulate set _i = do
-            cuid <- newCuid
+            cuid <- action
             return $! insert cuid set
     -- Generate a set containing a bunch of generated CUIDs.
-    set <- foldM accumulate empty [0..numberOfCuids-1]
+    set <- foldM accumulate empty [0 .. numberOfCuids - 1]
     -- If every element was unique, the set will have the same size as the input.
-    return $ if size set == numberOfCuids
-        then Nothing
-        else Just (numberOfCuids - size set)
+    return (numberOfCuids - size set)
