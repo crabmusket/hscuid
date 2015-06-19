@@ -15,7 +15,8 @@ This module does not use crypto-strength sources of randomness. Use at your own
 peril!
 -}
 module Web.Cuid (
-    Cuid, newCuid, newSlug
+    Cuid, newCuid,
+    Slug, newSlug
 ) where
 
 import Control.Monad (liftM)
