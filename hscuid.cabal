@@ -40,7 +40,7 @@ library
   hs-source-dirs:      lib
   exposed-modules:     Web.Cuid
   other-modules:       Web.Cuid.Internal
-  build-depends:       base ==4.*,
+  build-depends:       base >= 4.6 && < 5,
                        formatting ==6.*,
                        time ==1.*,
                        random ==1.*,
