@@ -11,8 +11,15 @@ You can read more about them at [usecuid.org][].
 
 ## How do I use this library?
 
-See documentation on [hackage][hscuid].
+```haskell
+>>> import Web.Cuid (newCuid, newSlug)
+>>> newCuid
+"cib3c3tcu0000zwowx9ho2gh4"
+>>> newSlug
+"y900001wmf"
+```
 
 [cuid]: https://github.com/ericelliott/cuid
-[hscuid]: http://hackage.haskell.org/package/hscuid
+[hscuid]: https://hackage.haskell.org/package/hscuid
+[semver]: http://semver.org
 [usecuid.org]: https://usecuid.org

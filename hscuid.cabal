@@ -4,28 +4,7 @@
 name:                hscuid
 version:             1.1.0
 synopsis:            Collision-resistant IDs
-description:         CUIDs are designed for horizontal scalability and collision
-                     resistance.
-                     Read more about them at <https://usecuid.org usecuid.org>.
-                     Here's everything you need to know:
-                     .
-                     >>> import Web.Cuid (newCuid, newSlug)
-                     >>> newCuid
-                     "cib3c3tcu0000zwowx9ho2gh4"
-                     >>> newSlug
-                     "c900001wmf"
-                     .
-                     This module does not use crypto-strength sources of
-                     randomness.
-                     Use at your own peril!
-                     .
-                     For better or worse, this module uses semantic versioning
-                     (see <http://semver.org/ semver.org>).
-                     That is, if you want to depend upon, for example, version 1
-                     of the API, you should add @hscuid ==1.*@ to your Cabal
-                     file. No breaking changes will be (deliberately) introduced
-                     under that version number.
-
+description:         See README (link below).
 homepage:            https://github.com/eightyeight/hscuid
 license:             BSD3
 license-file:        LICENSE
@@ -35,6 +14,7 @@ maintainer:          dan.buckmaster@gmail.com
 category:            Web
 build-type:          Simple
 cabal-version:       >=1.8
+extra-source-files:  README.md
 
 library
   hs-source-dirs:      lib
