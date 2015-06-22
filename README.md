@@ -6,7 +6,7 @@ To install, [`cabal install hscuid`][hscuid].
 ## What is a CUID?
 
 CUIDs are short random strings designed so that you can generate a lot of them over many different machines and not get collisions.
-They are designed to be usable in many situations, such as HTML element IDs.
+They are intended to be usable in situations from HTML element IDs to database keys.
 You can read more about them at [usecuid.org][].
 
 ## How do I use this library?
