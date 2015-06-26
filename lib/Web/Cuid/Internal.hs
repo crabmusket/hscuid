@@ -12,9 +12,10 @@ import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Char (ord)
 import Data.IORef (IORef, newIORef, atomicModifyIORef')
+import Data.Monoid ((<>))
 import Data.Text (Text)
 import Data.Time.Clock.POSIX (getPOSIXTime)
-import Formatting (Format, base, fitLeft, fitRight, left, (%.))
+import Formatting (Format, base, fitLeft, fitRight, left, sformat, (%.))
 import Network.HostName (getHostName)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Random (randomRIO)
@@ -34,6 +35,13 @@ getFingerprint = do
     hostname <- getHostName
     let hostSum = 36 + length hostname + sum (map ord hostname)
     return (pid, hostSum)
+
+-- | For efficiency, calculate the fingerptint and format it once.
+myFingerprint :: Text
+myFingerprint = unsafePerformIO $ do
+    (pid, host) <- getFingerprint
+    return (sformat twoOfNum pid <> sformat twoOfNum host)
+{-# NOINLINE myFingerprint #-}
 
 -- | Just get a random integer. Not referentially transparent.
 getRandomValue :: IO Int

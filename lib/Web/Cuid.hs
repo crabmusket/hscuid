@@ -18,9 +18,8 @@ import Data.String (fromString)
 import Data.Text (Text)
 import Formatting (sformat)
 
-import Data.Monoid (Monoid, (<>))
 #if !MIN_VERSION_base(4,8,0)
-import Data.Monoid (mconcat)
+import Data.Monoid (Monoid, mconcat)
 #endif
 
 import Web.Cuid.Internal
@@ -44,9 +43,7 @@ newCuid = concatResults [c, time, count, fingerprint, random, random] where
 
     -- To avoid collisions between separate machines, generate a 'fingerprint'
     -- from details which are hopefully unique to this machine - PID and hostname.
-    fingerprint = do
-        (pid, host) <- getFingerprint
-        return (sformat twoOfNum pid <> sformat twoOfNum host)
+    fingerprint = return myFingerprint
 
     -- And some actual randomness for good measure.
     random = liftM (sformat numberPadded) getRandomValue
@@ -61,9 +58,7 @@ newSlug = concatResults [time, count, fingerprint, random] where
     time = liftM (sformat twoOfNum) getTimestamp
     count = liftM (sformat numberPadded) getNextCount
     random = liftM (sformat twoOfNum) getRandomValue
-    fingerprint = do
-        (pid, host) <- getFingerprint
-        return (sformat firstOfNum pid <> sformat lastOfNum host)
+    fingerprint = return myFingerprint
 
 -- Evaluate IO actions and concatenate their results.
 concatResults :: (MonadIO m, Monoid a) => [IO a] -> m a
