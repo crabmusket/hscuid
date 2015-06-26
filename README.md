@@ -1,6 +1,7 @@
 # hscuid
 
-[![Build Status](https://travis-ci.org/eightyeight/hscuid.svg?branch=master)](https://travis-ci.org/eightyeight/hscuid) [![Hackage](https://img.shields.io/hackage/v/hscuid.svg)](https://hackage.haskell.org/package/hscuid)
+[![Build Status](https://travis-ci.org/eightyeight/hscuid.svg?branch=master)](https://travis-ci.org/eightyeight/hscuid)
+[![Hackage](https://img.shields.io/hackage/v/hscuid.svg)](https://hackage.haskell.org/package/hscuid)
 
 A Haskell port of the [JavaScript library][cuid] for collision-resistant identifiers.
 To install, [`cabal install hscuid`][hscuid].
