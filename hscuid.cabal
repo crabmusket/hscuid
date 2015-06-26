@@ -26,6 +26,7 @@ library
                        random >= 1.0,
                        transformers >= 0.4,
                        hostname >= 1.0,
+                       mwc-random >= 0.13,
                        text >= 1.2
   if os(windows)
     build-depends:     Win32 >= 2.3

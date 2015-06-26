@@ -18,7 +18,7 @@ import Data.Time.Clock.POSIX (getPOSIXTime)
 import Formatting (Format, base, fitLeft, fitRight, left, sformat, (%.))
 import Network.HostName (getHostName)
 import System.IO.Unsafe (unsafePerformIO)
-import System.Random (randomRIO)
+import System.Random.MWC (GenIO, create, uniformR)
 
 #if defined(mingw32_HOST_OS)
 import System.Win32 (ProcessId, failIfZero)
@@ -45,7 +45,12 @@ myFingerprint = unsafePerformIO $ do
 
 -- | Just get a random integer. Not referentially transparent.
 getRandomValue :: IO Int
-getRandomValue = randomRIO (0, maxCount)
+getRandomValue = uniformR (0, maxCount) generator
+
+-- | Global random number generator.
+generator :: GenIO
+generator = unsafePerformIO create
+{-# NOINLINE generator #-}
 
 -- | CUID calls for a globally incrementing counter per machine. This is ugly,
 -- but it satisfies the requirement.
