@@ -41,5 +41,6 @@ test-suite hscuid-test
   main-is:             Test.hs
   build-depends:       base >= 4.6 && < 5,
                        containers ==0.5.*,
+                       text >= 1.2,
                        hscuid
   ghc-options:         -Wall -rtsopts -O2

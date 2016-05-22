@@ -1,28 +1,44 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Control.Monad (foldM, when)
 import Data.Set (empty, insert, size)
+import Data.Text (Text, append)
+import qualified Data.Text.IO
 import System.Exit (ExitCode(..), exitWith)
 
 import Web.Cuid (Cuid, newCuid, newSlug)
 
 main :: IO ()
 main = do
-    nCuid <- runCollisionTest newCuid 1200000
-    nSlug <- runCollisionTest newSlug 1200000
-    case (nCuid, nSlug) of
-        (0, 0) -> exitWith ExitSuccess
+    putStrLn ""
+    putTxtLn . (append "example cuid: ") =<< newCuid
+    putTxtLn . (append "example slug: ") =<< newSlug
+    putStrLn "Running collision test..."
+    cuidCollisions <- runCollisionTest newCuid 1200000
+    slugCollisions <- runCollisionTest newSlug 1200000
+    case (cuidCollisions, slugCollisions) of
+        (0, 0) -> do
+            putStrLn "Collision test passed"
+            exitWith ExitSuccess
         _otherwise -> do
-            when (nCuid /= 0) $ print ("cuid collisions: " ++ show nCuid)
-            when (nSlug /= 0) $ print ("slug collisions: " ++ show nSlug)
+            putStrLn "Collision test failed"
+            when (cuidCollisions /= 0) $ print ("cuid collisions: " ++ show cuidCollisions)
+            when (slugCollisions /= 0) $ print ("slug collisions: " ++ show slugCollisions)
             exitWith (ExitFailure 1)
 
+-- We test the CUID generator by generating a lot of ids and putting them into
+-- a huge set. Since sets retain only unique elements, the size of the set will
+-- equal the number of CUIDs generated iff they were all unique.
 runCollisionTest :: IO Cuid -> Int -> IO Int
-runCollisionTest action numberOfCuids = do
-    let accumulate set _i = do
-            cuid <- action
-            return $! insert cuid set
-    -- Generate a set containing a bunch of generated CUIDs.
-    set <- foldM accumulate empty [0 .. numberOfCuids - 1]
-    -- If every element was unique, the set will have the same size as the input.
-    return (numberOfCuids - size set)
+runCollisionTest generator inputSize = do
+    set <- foldM build empty [0 .. inputSize - 1]
+    return (inputSize - size set)
+    where
+        build set _i = do
+            cid <- generator
+            return $! insert cid set
+
+putTxtLn :: Text -> IO ()
+putTxtLn = Data.Text.IO.putStrLn
