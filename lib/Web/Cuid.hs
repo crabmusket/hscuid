@@ -38,7 +38,7 @@ newCuid = concatResults [c, time, count, fingerprint, random, random] where
     -- to determine the time a particular CUID was created.
     time = liftM (sformat number) getTimestamp
 
-    -- To avoid collisions on the same machine, add a global counter to each ID.
+    -- To avoid collisions in the same process, add a global counter to each ID.
     count = liftM (sformat numberPadded) getNextCount
 
     -- To avoid collisions between separate machines, generate a 'fingerprint'
@@ -55,9 +55,9 @@ type Slug = Text
 -- techniques as CUIDs.
 newSlug :: MonadIO m => m Slug
 newSlug = concatResults [time, count, fingerprint, random] where
-    time = liftM (sformat twoOfNum) getTimestamp
+    time = liftM (sformat shortNumber) getTimestamp
     count = liftM (sformat numberPadded) getNextCount
-    random = liftM (sformat twoOfNum) getRandomValue
+    random = liftM (sformat shortNumber) getRandomValue
     fingerprint = return myFingerprint
 
 -- Evaluate IO actions and concatenate their results.

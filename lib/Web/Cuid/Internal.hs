@@ -40,7 +40,9 @@ getFingerprint = do
 myFingerprint :: Text
 myFingerprint = unsafePerformIO $ do
     (pid, host) <- getFingerprint
-    return (sformat twoOfNum pid <> sformat twoOfNum host)
+    return (sformat shortNumber pid <> sformat shortNumber host)
+-- This ensures the action should only be evaluated once, rather than being
+-- inlined and evaluated potentially inside another call.
 {-# NOINLINE myFingerprint #-}
 
 -- | Just get a random integer. Not referentially transparent.
@@ -50,6 +52,8 @@ getRandomValue = uniformR (0, maxCount) generator
 -- | Global random number generator.
 generator :: GenIO
 generator = unsafePerformIO create
+-- Don't want two different generators being created because of inlining.
+-- For more info: https://wiki.haskell.org/Top_level_mutable_state
 {-# NOINLINE generator #-}
 
 -- | CUID calls for a globally incrementing counter per machine. This is ugly,
@@ -57,7 +61,6 @@ generator = unsafePerformIO create
 counter :: IORef Int
 counter = unsafePerformIO (newIORef 0)
 -- Don't want two different counters being created because of inlining.
--- For more info: https://wiki.haskell.org/Top_level_mutable_state
 {-# NOINLINE counter #-}
 
 -- | Get the next value of the global counter required for CUID.
@@ -76,10 +79,10 @@ blockSize = 4
 maxCount = formatBase ^ blockSize
 
 -- | Number formatters for converting to the correct base and padding.
-number, numberPadded, twoOfNum, firstOfNum, lastOfNum :: Format Text (Int -> Text)
+number, numberPadded, shortNumber, firstOfNum, lastOfNum :: Format Text (Int -> Text)
 number = base formatBase
 numberPadded = left blockSize '0' %. number
-twoOfNum = fitRight 2 %. number
+shortNumber = fitRight 2 %. number
 lastOfNum = fitRight 1 %. number
 firstOfNum = fitLeft 1 %. number
 
