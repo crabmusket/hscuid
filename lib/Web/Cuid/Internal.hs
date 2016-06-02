@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, ForeignFunctionInterface #-}
+{-# LANGUAGE CPP, ForeignFunctionInterface, BangPatterns #-}
 
 {-|
 Stability: unstable
@@ -12,19 +12,30 @@ import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Char (ord)
 import Data.IORef (IORef, newIORef, atomicModifyIORef')
-import Data.Monoid ((<>))
-import Data.Text (Text)
+import Data.Text (Text, append)
 import Data.Time.Clock.POSIX (getPOSIXTime)
 import Formatting (Format, base, fitLeft, fitRight, left, sformat, (%.))
 import Network.HostName (getHostName)
 import System.IO.Unsafe (unsafePerformIO)
-import System.Random.MWC (GenIO, create, uniformR)
+import System.Random.MWC (GenIO)
+import qualified System.Random.MWC as MWC
 
 #if defined(mingw32_HOST_OS)
 import System.Win32 (ProcessId, failIfZero)
 #else
 import System.Posix.Process (getProcessID)
 #endif
+
+-- | These constants are to do with the desired output formatting of numbers in
+-- the CUID.
+formatBase, blockSize :: Int
+formatBase = 36
+blockSize = 4
+
+-- | maxCount is derived from the output format and defines the maximum random
+-- number we should generate.
+maxCount :: Int
+maxCount = formatBase ^ blockSize
 
 -- | A machine's fingerprint is derived from its PID and hostname. We do some
 -- maths on the hostname's contents to boil it down to a single integer instead
@@ -40,21 +51,21 @@ getFingerprint = do
 myFingerprint :: Text
 myFingerprint = unsafePerformIO $ do
     (pid, host) <- getFingerprint
-    return (sformat shortNumber pid <> sformat shortNumber host)
+    return (sformat shortNumber pid `append` sformat shortNumber host)
 -- This ensures the action should only be evaluated once, rather than being
--- inlined and evaluated potentially inside another call.
+-- inlined and potentially evaluated inside another call.
 {-# NOINLINE myFingerprint #-}
-
--- | Just get a random integer. Not referentially transparent.
-getRandomValue :: IO Int
-getRandomValue = uniformR (0, maxCount) generator
 
 -- | Global random number generator.
 generator :: GenIO
-generator = unsafePerformIO create
+generator = unsafePerformIO MWC.create
 -- Don't want two different generators being created because of inlining.
 -- For more info: https://wiki.haskell.org/Top_level_mutable_state
 {-# NOINLINE generator #-}
+
+-- | Just get a random integer.
+getRandomValue :: IO Int
+getRandomValue = MWC.uniformR (0, maxCount) generator
 
 -- | CUID calls for a globally incrementing counter per machine. This is ugly,
 -- but it satisfies the requirement.
@@ -71,12 +82,6 @@ getNextCount = postIncrement counter
 postIncrement :: MonadIO m => IORef Int -> m Int
 postIncrement c = liftIO (atomicModifyIORef' c incrementAndWrap) where
     incrementAndWrap count = (succ count `mod` maxCount, count)
-
--- | These constants are to do with number formatting.
-formatBase, blockSize, maxCount :: Int
-formatBase = 36
-blockSize = 4
-maxCount = formatBase ^ blockSize
 
 -- | Number formatters for converting to the correct base and padding.
 number, numberPadded, shortNumber, firstOfNum, lastOfNum :: Format Text (Int -> Text)
