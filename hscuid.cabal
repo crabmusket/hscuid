@@ -44,3 +44,11 @@ test-suite hscuid-test
                        text >= 1.2,
                        hscuid
   ghc-options:         -Wall -rtsopts -O2
+
+executable perf-test
+  hs-source-dirs:      test
+  main-is:             Perf.hs
+  build-depends:       base >= 4.6 && < 5,
+                       criterion >= 1.1 && < 1.2,
+                       hscuid
+  ghc-options:         -Wall -rtsopts -O2

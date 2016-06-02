@@ -22,7 +22,30 @@ You can read more about them at [usecuid.org][].
 "y900001wmf"
 ```
 
+## Developing
+
+I am currently developing with Stack.
+To install dependencies and compile the library and test suites:
+
+```sh
+stack init --resolver nightly
+stack build
+```
+
+To run the collision test suite (which generates 1.2M IDs and makes sure they're all unique):
+
+```sh
+stack test
+```
+
+To test performance with [criterion][]:
+
+```sh
+stack exec perf-test -- --regress allocated:iters +RTS -T
+```
+
 [cuid]: https://github.com/ericelliott/cuid
 [hscuid]: https://hackage.haskell.org/package/hscuid
 [semver]: http://semver.org
 [usecuid.org]: https://usecuid.org
+[criterion]: https://hackage.haskell.org/package/criterion
