@@ -39,7 +39,7 @@ library
     extra-libraries:   kernel32
   else
     build-depends:     unix >= 2.6
-  ghc-options:         -Wall
+  ghc-options:         -Wall -O2
 
 test-suite hscuid-test
   type:                exitcode-stdio-1.0
