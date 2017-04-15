@@ -16,7 +16,6 @@ import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.String (fromString)
 import Data.Text (Text)
-import Formatting (sformat)
 
 #if !MIN_VERSION_base(4,8,0)
 import Data.Monoid (Monoid, mconcat)
@@ -36,17 +35,17 @@ newCuid = concatResults [c, time, count, fingerprint, random, random] where
 
     -- The second chunk is the timestamp. Note that this means it is possible
     -- to determine the time a particular CUID was created.
-    time = liftM (sformat number) getTimestamp
+    time = liftM formatNumber getTimestamp
 
     -- To avoid collisions in the same process, add a global counter to each ID.
-    count = liftM (sformat numberPadded) getNextCount
+    count = liftM formatPadded getNextCount
 
     -- To avoid collisions between separate machines, generate a 'fingerprint'
     -- from details which are hopefully unique to this machine - PID and hostname.
     fingerprint = return myFingerprint
 
     -- And some actual randomness for good measure.
-    random = liftM (sformat numberPadded) getRandomValue
+    random = liftM formatPadded getRandomValue
 
 -- | A Slug is not a Cuid. But it is also a strict Text.
 type Slug = Text
@@ -55,9 +54,9 @@ type Slug = Text
 -- techniques as CUIDs.
 newSlug :: MonadIO m => m Slug
 newSlug = concatResults [time, count, fingerprint, random] where
-    time = liftM (sformat shortNumber) getTimestamp
-    count = liftM (sformat numberPadded) getNextCount
-    random = liftM (sformat shortNumber) getRandomValue
+    time = liftM formatShort getTimestamp
+    count = liftM formatPadded getNextCount
+    random = liftM formatShort getRandomValue
     fingerprint = return myFingerprint
 
 -- Evaluate IO actions and concatenate their results.
