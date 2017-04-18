@@ -5,16 +5,19 @@ name:                hscuid
 version:             1.2.0.0
 synopsis:            Collision-resistant IDs
 description:         See README (link below).
-homepage:            https://github.com/eightyeight/hscuid
+homepage:            https://github.com/crabmusket/hscuid
 license:             BSD3
 license-file:        LICENSE
 author:              Daniel Buckmaster
 maintainer:          dan.buckmaster@gmail.com
--- copyright:           
 category:            Web
 build-type:          Simple
-cabal-version:       >=1.8
+cabal-version:       >= 1.8
 extra-source-files:  README.md
+tested-with:         GHC == 7.6.3
+                   , GHC == 7.8.4
+                   , GHC == 7.10.1
+                   , GHC == 8.0.2
 
 library
   hs-source-dirs:      lib
@@ -49,6 +52,12 @@ executable perf-test
   hs-source-dirs:      test
   main-is:             Perf.hs
   build-depends:       base >= 4.6 && < 5,
-                       criterion >= 1.1 && < 1.2,
                        hscuid
+  if impl(ghc < 7.8)
+    -- We cannot use criterion >= 1.1.1 with GHC 7.6 because of its dependency
+    -- on js-jquery, which requires Cabal library >= 1.18.
+    -- See https://github.com/crabmusket/hscuid/pull/5#issuecomment-294654898
+    build-depends:     criterion >= 1.1 && < 1.1.1
+  else
+    build-depends:     criterion >= 1.1
   ghc-options:         -Wall -rtsopts -O2
