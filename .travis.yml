@@ -44,7 +44,6 @@ script:
  - cabal build
 
  - cabal test
- - cabal check
 
  # tests that a source-distribution can be generated
  - cabal sdist
