@@ -5,7 +5,7 @@ name:                hscuid
 version:             1.2.0.0
 synopsis:            Collision-resistant IDs
 description:         See README (link below).
-homepage:            https://github.com/eightyeight/hscuid
+homepage:            https://github.com/crabmusket/hscuid
 license:             BSD3
 license-file:        LICENSE
 author:              Daniel Buckmaster
