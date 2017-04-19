@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                hscuid
-version:             1.2.0.0
+version:             1.2.0.1
 synopsis:            Collision-resistant IDs
 description:         See README (link below).
 homepage:            https://github.com/crabmusket/hscuid
