@@ -24,7 +24,7 @@ You can read more about them at [usecuid.org][].
 
 ## Developing
 
-I am currently developing with Stack.
+I am currently developing with [stack][].
 To install dependencies and compile the library and test suites:
 
 ```sh
@@ -48,3 +48,4 @@ stack exec perf-test -- --regress allocated:iters +RTS -T
 [semver]: http://semver.org
 [usecuid.org]: https://usecuid.org
 [criterion]: https://hackage.haskell.org/package/criterion
+[stack]: https://haskellstack.org
