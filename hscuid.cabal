@@ -26,9 +26,8 @@ source-repository head
 library
   hs-source-dirs:      lib
   exposed-modules:     Web.Cuid
-  other-modules:       Web.Cuid.Internal
+  other-modules:       Web.Cuid.Internal Web.Cuid.Internal.Formatting
   build-depends:       base >= 4.6 && < 5,
-                       formatting >= 6.2,
                        time >= 1.4,
                        random >= 1.0,
                        transformers >= 0.4,
@@ -40,7 +39,7 @@ library
     extra-libraries:   kernel32
   else
     build-depends:     unix >= 2.6
-  ghc-options:         -Wall
+  ghc-options:         -Wall -O2
 
 test-suite hscuid-test
   type:                exitcode-stdio-1.0

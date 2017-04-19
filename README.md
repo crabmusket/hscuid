@@ -28,7 +28,6 @@ I am currently developing with Stack.
 To install dependencies and compile the library and test suites:
 
 ```sh
-stack init --resolver nightly
 stack build
 ```
 

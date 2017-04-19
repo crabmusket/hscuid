@@ -6,7 +6,10 @@ Portability: portable
 
 Contains internal implementation details for CUIDs.
 -}
-module Web.Cuid.Internal where
+module Web.Cuid.Internal (
+    formatNumber, formatPadded, formatShort,
+    getNextCount, getRandomValue, getTimestamp, myFingerprint
+) where
 
 import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -14,23 +17,17 @@ import Data.Char (ord)
 import Data.IORef (IORef, newIORef, atomicModifyIORef')
 import Data.Text (Text, append)
 import Data.Time.Clock.POSIX (getPOSIXTime)
-import Formatting (Format, base, fitLeft, fitRight, left, sformat, (%.))
 import Network.HostName (getHostName)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Random.MWC (GenIO)
 import qualified System.Random.MWC as MWC
+import Web.Cuid.Internal.Formatting
 
 #if defined(mingw32_HOST_OS)
 import System.Win32 (ProcessId, failIfZero)
 #else
 import System.Posix.Process (getProcessID)
 #endif
-
--- | These constants are to do with the desired output formatting of numbers in
--- the CUID.
-formatBase, blockSize :: Int
-formatBase = 36
-blockSize = 4
 
 -- | maxCount is derived from the output format and defines the maximum random
 -- number we should generate.
@@ -51,7 +48,7 @@ getFingerprint = do
 myFingerprint :: Text
 myFingerprint = unsafePerformIO $ do
     (pid, host) <- getFingerprint
-    return (sformat shortNumber pid `append` sformat shortNumber host)
+    return (formatShort pid `append` formatShort host)
 -- This ensures the action should only be evaluated once, rather than being
 -- inlined and potentially evaluated inside another call.
 {-# NOINLINE myFingerprint #-}
@@ -82,14 +79,6 @@ getNextCount = postIncrement counter
 postIncrement :: MonadIO m => IORef Int -> m Int
 postIncrement c = liftIO (atomicModifyIORef' c incrementAndWrap) where
     incrementAndWrap count = (succ count `mod` maxCount, count)
-
--- | Number formatters for converting to the correct base and padding.
-number, numberPadded, shortNumber, firstOfNum, lastOfNum :: Format Text (Int -> Text)
-number = base formatBase
-numberPadded = left blockSize '0' %. number
-shortNumber = fitRight 2 %. number
-lastOfNum = fitRight 1 %. number
-firstOfNum = fitLeft 1 %. number
 
 -- | Get the current UNIX time in milliseconds.
 getTimestamp :: IO Int
